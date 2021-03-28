@@ -1,0 +1,252 @@
+{
+	"info": {
+		"_postman_id": "1f609728-fde1-4340-a29c-15da87725a39",
+		"name": "Auto Insurance Eligibility",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Create New Case",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "[\n    {\n        \"ObjectType\": \"AutoCase@eg.maximal.co\",\n        \"CaseID\": \"AC00001\",\n        \"EffectiveDate\": \"2021-03-27\",\n        \"Drivers\": [\n            {\n                \"FirstName\": \"John\",\n                \"LastName\": \"Test\",\n                \"DLNumber\": \"B534521CA\",\n                \"DOB\": \"2000-01-01\",\n                \"MVR\": {\n                    \"ReportDate\": \"2021-03-27\",\n                    \"DLSuspended\": false,\n                    \"Violations\": [\n                        {\n                            \"ViolationDate\": \"2020-04-20\",\n                            \"ViolationCode\": \"V0031X\",\n                            \"Severity\": \"MAJOR\"\n                        },\n                        {\n                            \"ViolationDate\": \"2021-01-09\",\n                            \"ViolationCode\": \"V0042C\",\n                            \"Severity\": \"MAJOR\"\n                        },\n                        {\n                            \"ViolationDate\": \"2020-08-16\",\n                            \"ViolationCode\": \"V0031X\",\n                            \"Severity\": \"MAJOR\"\n                        }\n                    ]\n                }\n            }\n        ]\n    }\n]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{endpoint}}/scope/new?proj=AutoInsurance",
+					"host": [
+						"{{endpoint}}"
+					],
+					"path": [
+						"scope",
+						"new"
+					],
+					"query": [
+						{
+							"key": "proj",
+							"value": "AutoInsurance"
+						}
+					]
+				},
+				"description": "Create a new case with one driver, one MVR for the driver that has three major incidents. This should make the case ineligible.\n"
+			},
+			"response": []
+		},
+		{
+			"name": "Explain Case Eligibility",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{endpoint}}/scope/explainVariable?proj=AutoInsurance&scope=10000001&variable=AutoCase@eg.maximal.co:10000001:IsEligible",
+					"host": [
+						"{{endpoint}}"
+					],
+					"path": [
+						"scope",
+						"explainVariable"
+					],
+					"query": [
+						{
+							"key": "proj",
+							"value": "AutoInsurance"
+						},
+						{
+							"key": "scope",
+							"value": "10000001"
+						},
+						{
+							"key": "variable",
+							"value": "AutoCase@eg.maximal.co:10000001:IsEligible"
+						}
+					]
+				},
+				"description": "Ask for explanation for the eligibility. \n"
+			},
+			"response": []
+		},
+		{
+			"name": "Modify Violation Severity",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "\n[\n\n    {\n        \"ObjectType\": \"Violation@eg.maximal.co\",\n        \"ObjectID\": 10000001,\n        \"Severity\": \"MINOR\"\n    }\n]\n\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{endpoint}}/scope/updateObjects?proj=AutoInsurance&scope=10000001",
+					"host": [
+						"{{endpoint}}"
+					],
+					"path": [
+						"scope",
+						"updateObjects"
+					],
+					"query": [
+						{
+							"key": "proj",
+							"value": "AutoInsurance"
+						},
+						{
+							"key": "scope",
+							"value": "10000001"
+						}
+					]
+				},
+				"description": "Modify one violation to be of minor severity. "
+			},
+			"response": []
+		},
+		{
+			"name": "Make Driver License Supended.",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "[\n    {\n        \"ObjectType\": \"MVR@eg.maximal.co\",\n        \"ObjectID\": 10000001,\n        \"DLSuspended\": true\n    }\n]\n\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{endpoint}}/scope/updateObjects?proj=AutoInsurance&scope=10000001",
+					"host": [
+						"{{endpoint}}"
+					],
+					"path": [
+						"scope",
+						"updateObjects"
+					],
+					"query": [
+						{
+							"key": "proj",
+							"value": "AutoInsurance"
+						},
+						{
+							"key": "scope",
+							"value": "10000001"
+						}
+					]
+				},
+				"description": "Modify driver license to be suspended.\n"
+			},
+			"response": []
+		},
+		{
+			"name": "Fetch All Case Details",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{endpoint}}/scope/objects?proj=AutoInsurance&scope=10000001&includeRels=true",
+					"host": [
+						"{{endpoint}}"
+					],
+					"path": [
+						"scope",
+						"objects"
+					],
+					"query": [
+						{
+							"key": "proj",
+							"value": "AutoInsurance"
+						},
+						{
+							"key": "scope",
+							"value": "10000001"
+						},
+						{
+							"key": "includeRels",
+							"value": "true"
+						}
+					]
+				},
+				"description": "Fetch all objects in the case. \n"
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "basic",
+		"basic": [
+			{
+				"key": "username",
+				"value": "sample_key_1",
+				"type": "string"
+			},
+			{
+				"key": "password",
+				"value": "7mxukbSzTpTMI1yfW7Y8j7yvYv0Ob6ptPmLd",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}

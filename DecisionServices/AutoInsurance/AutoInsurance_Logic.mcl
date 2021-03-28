@@ -1,0 +1,34 @@
+
+SET case = AutoCase@eg.maximal.co;
+SET driver = case.Drivers;
+SET mvr = driver.MVR;
+
+// m_viol is a set of all major violations in an MVR.
+SET m_viol = mvr.Violations WHERE m_viol.Severity = MAJOR;
+
+// m_viol_yr is a set of all major violations in an MVR in the last year.
+SET m_viol_yr = mvr.Violations WHERE m_viol_yr.Severity = MAJOR AND
+    DATEDIFF(case.EffectiveDate, m_viol_yr.ViolationDate, YEARS) < 1;
+
+
+CONSTRAINT Calc C1 STRICT "Age calculation"
+  driver.AgeAtEffective = DATEDIFF(case.EffectiveDate, driver.DOB, YEARS);
+
+CONSTRAINT Eligibility C0 DEFAULT "A case is eligble by default."
+    case.IsEligible;
+
+CONSTRAINT Eligibility C1 "A case is eligible only if all drivers are eligible."
+    case.IsEligible => driver.IsEligible;
+  
+CONSTRAINT Eligibility C2 "Driver must be 18 or over to be eligible."
+    driver.IsEligible => (driver.AgeAtEffective >= 18);
+    
+CONSTRAINT Eligibility C3 "Driver must have 5 or less major violations."
+    driver.IsEligible => SSIZE(m_viol) <= 5;
+    
+CONSTRAINT Eligibility C4 "Driver must have 2 or less major violations in the last year."
+    driver.IsEligible => SSIZE(m_viol_yr) <= 2;
+    
+CONSTRAINT Eligiblity C5 "Driver must have an active licence."
+    driver.IsEligible => NOT mvr.DLSuspended;
+    

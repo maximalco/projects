@@ -1,0 +1,61 @@
+
+<model xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://maximal.co ../maximal-dml.xsd" xmlns="http://maximal.co">
+    
+    <object-type name="AutoCase@eg.maximal.co" label="Auto Insurance Case">
+        <attribute name="CaseID" label="Id of the case." datatype="text" optional="false"/>
+        <attribute name="EffectiveDate" label="Policy effective date" datatype="date"/>
+        <attribute name="IsEligible" label="Whether or not case is eligible" datatype="boolean"/>
+    
+        <relation name="Drivers" label="Drivers in the case" inverse-object="Driver@eg.maximal.co" 
+            inverse-attribute="AutoCase" is-containment="true"/>
+    
+        <persistence-params table-name="auto_case"/>
+    </object-type>
+    
+    <object-type name="Driver@eg.maximal.co" label="Driver information.">
+        <attribute name="AutoCase" label="The case driver belongs to." datatype="reference"
+            ref-type="AutoCase@eg.maximal.co"/>
+        <attribute name="FirstName" label="First name of the driver." datatype="text"/>
+        <attribute name="LastName" label="Last name of the driver." datatype="text"/>
+        <attribute name="DLNumber" label="Driver license number." datatype="text"/>
+        <attribute name="DOB" label="Date of birth." datatype="date"/>
+        <attribute name="AgeAtEffective" label="Age at policy effective date." datatype="integer"/>
+        <attribute name="IsEligible" label="Whether or not driver is eligible" datatype="boolean"/>
+        <attribute name="MVR" label="MVR for the driver" datatype="reference" ref-type="MVR@eg.maximal.co"/>
+
+        <persistence-params table-name="auto_driver"/>
+    </object-type>
+    
+    <object-type name="MVR@eg.maximal.co" label="Motor vehicle report.">
+        <attribute name="ReportDate" label="Date of MVR report." datatype="date"/>
+        <attribute name="DLSuspended" label="Is driver license suspended?" datatype="boolean"/>
+        
+        <relation name="Violations" label="Violations in the MVR" inverse-object="Violation@eg.maximal.co" 
+            inverse-attribute="MVR" is-containment="true"/>
+        
+        <persistence-params table-name="auto_mvr"/>
+    </object-type>
+    
+     <object-type name="Violation@eg.maximal.co" label="Motor vehicle report violation.">
+        <attribute name="MVR" label="The MVR the violation belongs to." datatype="reference"
+            ref-type="MVR@eg.maximal.co"/>
+        <attribute name="ViolationDate" label="Violation date." datatype="date"/>
+        <attribute name="ViolationCode" label="Violation code" datatype="text"/>
+        <attribute name="Severity" label="Violation severity" datatype="enumerated" 
+            enumtype="ViolationSeverityEnum@eg.maximal.co"/>
+        
+        <persistence-params table-name="auto_violation"/>
+    </object-type>
+    
+    <enum-type name="ViolationSeverityEnum@eg.maximal.co" label="Violation Severity Violation">
+        <enum-option name="MAJOR" label="Major"/>
+        <enum-option name="MINOR" label="Minor"/>
+    </enum-type>
+    
+</model>
+
+
+
+
+
