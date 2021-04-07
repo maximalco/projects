@@ -1,0 +1,346 @@
+
+<model xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maximal.co">
+
+    <object-type name="LifeCase@eg.maximal.co" label="Life insurance case">
+        <attribute name="CaseNumber" label="Case Number" datatype="text" optional="false"/>
+        <attribute name="SubmissionDate" label="Submission Date" datatype="date"/>
+
+        <attribute name="DataValidInd" label="All data is valid." datatype="boolean"/>
+        <attribute name="SIIssuableInd" label="Eligible for simplified issue." datatype="boolean"/>
+
+        <relation name="Policies" label="Policies" inverse-object="Policy@eg.maximal.co" inverse-attribute="LCase"/>
+        <relation name="Parties" label="Parties involved in the case." inverse-object="Party@eg.maximal.co" inverse-attribute="LCase"/>
+
+        <persistence-params table-name="life_case">
+            <index name="Idx_CaseNumber" columns="CaseNumber" unique="true"/>
+            <index name="Idx_SDate" columns="SubmissionDate" unique="false"/>
+        </persistence-params>
+    </object-type>
+
+    <object-type name="Policy@eg.maximal.co" label="Information about the life policy applied for.">
+        <attribute name="LCase" label="Case the policy belongs to." datatype="reference" ref-type="LifeCase@eg.maximal.co"/>
+        <attribute name="Jurisdiction" label="Jurisdiction State" datatype="enumerated" enumtype="USStatesEnum@eg.maximal.co"/>
+        <attribute name="TotalRiskAmt" label="Total amount at risk" description="Total amount including any of existing in-force policies."
+                   datatype="float"/>
+        <attribute name="EffectiveDate" label="Effective Date" datatype="date"/>
+        <attribute name="IssuableInd" label="Policy is issuable" datatype="boolean"/>
+
+        <attribute name="EligibleRiskClasses" label="Eligible Risk Classes" datatype="multienum" enumtype="RiskClassEnum@eg.maximal.co"/>
+        <attribute name="BestRiskClass" label="Best risk class eligible for." datatype="enumerated" enumtype="RiskClassEnum@eg.maximal.co"/>
+
+        <relation name="Coverages" label="Coverages, including riders." inverse-object="Coverage@eg.maximal.co"
+                  inverse-attribute="Policy"/>
+        <relation name="Participants" label="Participants such as owners." inverse-object="Participant@eg.maximal.co"
+                  inverse-attribute="Policy"/>
+
+        <persistence-params table-name="life_policy">
+            <index name="Idx_RiskAmt" columns="TotalRiskAmt" unique="false"/>
+        </persistence-params>
+    </object-type>
+
+    <object-type name="Party@eg.maximal.co" label="A party such as insured person, owners, beneficiaries.">
+        <attribute name="LCase" label="Case the party belongs to." datatype="reference" ref-type="LifeCase@eg.maximal.co"/>
+        <attribute name="Type" label="Type of party (Person, Org, Trust, etc)" datatype="enumerated"
+                   enumtype="PartyTypeEnum@eg.maximal.co"/>
+        <attribute name="FirstName" label="First Name" datatype="text"/>
+        <attribute name="LastName" label="Last Name" datatype="text"/>
+        <attribute name="MiddleName" label="Middle Name" datatype="text"/>
+        <attribute name="FullName" label="Full Name" description="Used for organizations." datatype="text"/>
+        <attribute name="Email" label="Email Addresss" datatype="text"/>
+        <attribute name="PhoneNumber" label="Primary Phone Number" datatype="text"/>
+        <attribute name="Sex" label="Sex" datatype="enumerated" enumtype="SexEnum@eg.maximal.co"/>
+        <attribute name="MaritalStatus" label="Marital Status" datatype="enumerated" enumtype="MaritalStatusEnum@eg.maximal.co"/>
+
+        <attribute name="BirthDate" label="Birth Date" datatype="date"/>
+        <attribute name="Age" label="Age" datatype="integer"/>
+        <attribute name="DLNumber" label="Driving Licence Number" datatype="text"/>
+        <attribute name="DLState" label="Driving License State" datatype="enumerated" enumtype="USStatesEnum@eg.maximal.co"/>
+        <attribute name="GovtID" label="Government ID" datatype="text"/>
+
+        <!-- For Trust -->
+        <attribute name="TrustAgreementDate" label="Trust Agreement Date" datatype="date"/>
+
+        <attribute name="PartA" label="PartA Questions" description="Part A questions from the application."
+                   datatype="reference" ref-type="PartA@eg.maximal.co"/>
+        <attribute name="PartB" label="PartB Questions" description="Part B questions from the application."
+                   datatype="reference" ref-type="PartB@eg.maximal.co"/>
+
+        <relation name="Addresses" label="Addresses" inverse-object="Address@eg.maximal.co" inverse-attribute="Party"/>
+        <relation name="ExistingContracts" label="Existing Contracts" inverse-object="ExistingContract@eg.maximal.co"
+                  inverse-attribute="InsuredParty"/>
+
+        <persistence-params table-name="life_party">
+            <index name="Idx_LastName" columns="LastName" unique="false"/>
+            <index name="Idx_GovtID" columns="GovtID" unique="false"/>
+        </persistence-params>
+    </object-type>
+
+    <object-type name="Coverage@eg.maximal.co" label="Coverage, including riders.">
+        <attribute name="Policy" label="Policy" datatype="reference" ref-type="Policy@eg.maximal.co"/>
+        <attribute name="ProductCode" label="Product Code" datatype="text"/>
+        <attribute name="Indicator" label="Indicator code (Base, Rider, etc)" datatype="enumerated"
+                   enumtype="CovIndicatorEnum@eg.maximal.co"/>
+        <attribute name="CoverageAmt" label="Coverage Amount" datatype="double"/>
+
+        <persistence-params table-name="life_coverage"/>
+    </object-type>
+
+    <object-type name="Participant@eg.maximal.co" label="Participant">
+        <attribute name="Policy" label="Policy" datatype="reference" ref-type="Policy@eg.maximal.co"/>
+        <attribute name="Party" label="Associated party." datatype="reference" ref-type="Party@eg.maximal.co"/>
+        <attribute name="RoleCode" label="Role Code (Owner, Beneficiary, Contigent Beneficiary, etc)"
+                   datatype="enumerated" enumtype="RoleCodeEnum@eg.maximal.co"/>
+        <attribute name="RelationCode" label="Relation to insured." datatype="enumerated"
+                   enumtype="RelationTypeEnum@eg.maximal.co"/>
+        <attribute name="ParticipationPct" label="Participation Percent" datatype="float"/>
+
+        <attribute name="IssueAge" label="Age at issue" description="Age at issue for insured parties" datatype="integer"/>
+
+        <persistence-params table-name="life_participant"/>
+    </object-type>
+
+    <object-type name="PartA@eg.maximal.co" label="Part A Questions">
+        <attribute name="ExistingInsuranceInd" label="Existing insurance indicated" datatype="boolean"/>
+        <attribute name="TobaccoUseStatus" label="Tobacco use status" datatype="enumerated" enumtype="TobaccoUseStatusEnum@eg.maximal.co"/>
+        <attribute name="TobaccoLastUsed" label="Tobacco last used" datatype="enumerated" enumtype="TobaccoLastUsedEnum@eg.maximal.co"/>
+        <attribute name="TobaccoUseRemarks" label="Tobacco use remarks" datatype="text"/>
+
+        <attribute name="AnnualIncome" label="Annual income." datatype="float"/>
+        <attribute name="TotalAssets" label="Total Assets" datatype="float"/>
+        <attribute name="TotalLiabilities" label="Total Liabilities" datatype="float"/>
+        <attribute name="BankruptcyInd" label="Whether bankruptcy is indicated." datatype="boolean"/>
+
+        <attribute name="Purpose" label="Purpose of insurance" datatype="enumerated" enumtype="PolicyPurposeEnum@eg.maximal.co"/>
+
+        <relation name="RiskHistoryQuestions" label="Risk History questions" inverse-object="QuestionResponse@eg.maximal.co"
+                  inverse-attribute="Parent"/>
+
+        <persistence-params table-name="life_part_a"/>
+    </object-type>
+
+    <object-type name="PartB@eg.maximal.co" label="Part B Questions">
+        <attribute name="HeightInInches" label="Height in inches" datatype="integer"/>
+        <attribute name="Weight" label="Weight in lb" datatype="integer"/>
+        <attribute name="WeightChangedInd" label="Weight changed by 10lb or more indicator" datatype="boolean"/>
+        <attribute name="WeightChange" label="Weight change in Lbs" datatype="integer"/>
+        <attribute name="WeightChangeDirection" label="Weight change direction - gain or loss"
+                   datatype="enumerated" enumtype="WeightChangeDirectionEnum@eg.maximal.co"/>
+
+        <relation name="HealthHistoryQuestions" label="Health History questions" inverse-object="QuestionResponse@eg.maximal.co"
+                  inverse-attribute="Parent"/>
+
+        <persistence-params table-name="life_part_b"/>
+    </object-type>
+
+    <object-type name="QuestionResponse@eg.maximal.co" label="Question Responses for PartA and PartB">
+        <attribute name="Parent" label="Who holds this question, e.g., Part A or Part B" datatype="reference2"/>
+        <attribute name="QuestionID" label="Question ID" datatype="text"/>
+        <attribute name="Response" label="Response given" datatype="boolean"/>
+        <attribute name="Remarks" label="Response Remarks" datatype="text" length="1000"/>
+
+        <persistence-params table-name="life_question_response"/>
+    </object-type>
+
+    <object-type name="ExistingContract@eg.maximal.co" label="Existing life insurance or annuity contract">
+        <attribute name="InsuredParty" label="Insured Party of the contract." datatype="reference" ref-type="Party@eg.maximal.co"/>
+        <attribute name="CompanyName" label="Full Name of the Financial Institution" datatype="text"/>
+        <attribute name="CoverageAmt" label="Amount of Insurance" datatype="double"/>
+        <attribute name="ToBeReplaced" label="Whether it will be replaced or not." datatype="boolean"/>
+        <attribute name="YearIssued" label="Year the contract was issued." datatype="integer"/>
+        <persistence-params table-name="life_other_contract"/>
+    </object-type>
+
+    <object-type name="Address@eg.maximal.co" label="Address">
+        <attribute name="Type" label="Address Type (Home, Mailing)" datatype="enumerated" enumtype="AddressTypeEnum@eg.maximal.co" initial-value="HOME"/>
+        <attribute name="Party" label="Party" datatype="reference" ref-type="Party@eg.maximal.co"/>
+        <attribute name="Line1" label="Street Address Line 1" datatype="text"/>
+        <attribute name="Line2" label="Street Address Line 2" datatype="text"/>
+        <attribute name="City" label="City" datatype="text"/>
+        <attribute name="State" label="State" datatype="enumerated" enumtype="USStatesEnum@eg.maximal.co"/>
+        <attribute name="Zip" label="Zip" datatype="text"/>
+        <attribute name="Country" label="Country" datatype="text" initial-value="USA"/>
+
+        <persistence-params table-name="life_address"/>
+    </object-type>
+
+    <!-- Reference Tables. -->
+    <object-type name="ProductData@eg.maximal.co" label="Product table." is-reference-table="true">
+        <attribute name="ProductCode" label="Product Code" datatype="text"/>
+        <attribute name="ProductName" label="Product Name" datatype="text"/>
+        <attribute name="FamilyCode" label="Product Family Code" datatype="text"/>
+        <attribute name="MinCovAmt" label="Minimum Coverage Amount" datatype="float"/>
+        <attribute name="MaxCovAmt" label="Maximum Coverage Amount" datatype="float"/>
+        <attribute name="MinIssueAge" label="Minumum Issue Age" datatype="integer"/>
+        <attribute name="MaxIssueAge" label="Maximum Issue Age" datatype="integer"/>
+        <attribute name="IsActive" label="Is currently active." datatype="boolean"/>
+
+        <persistence-params table-name="life_productdata">
+            <index name="Idx_Code" columns="ProductCode" unique="true"/>
+        </persistence-params>
+    </object-type>
+
+    <object-type name="RiderData@eg.maximal.co" label="Rider table." is-reference-table="true">
+        <attribute name="RiderCode" label="Rider Code" datatype="text"/>
+        <attribute name="RiderName" label="Rider Name" datatype="text"/>
+        <attribute name="IsActive" label="Is currently active." datatype="boolean"/>
+
+        <persistence-params table-name="life_riderdata">
+            <index name="Idx_Code" columns="RiderCode" unique="true"/>
+        </persistence-params>
+    </object-type>
+
+    <!-- Enumerations -->
+    <enum-type name="PartyTypeEnum@eg.maximal.co" label="Party type enumeration">
+        <enum-option name="PERSON" label="Person"/>
+        <enum-option name="TRUST" label="Trust"/>
+        <enum-option name="BUSINESS" label="Business"/>
+    </enum-type>
+
+    <enum-type name="AddressTypeEnum@eg.maximal.co" label="Address type enumeration">
+        <enum-option name="HOME" label="Home"/>
+        <enum-option name="MAILING" label="Mailing"/>
+    </enum-type>
+
+    <enum-type name="SexEnum@eg.maximal.co" label="Sex type enumeration">
+        <enum-option name="MALE" label="Male"/>
+        <enum-option name="FEMALE" label="Female"/>
+    </enum-type>
+
+    <enum-type name="WeightChangeDirectionEnum@eg.maximal.co" label="Weight change direction enumeration">
+        <enum-option name="GAIN" label="Gain"/>
+        <enum-option name="LOSS" label="Loss"/>
+    </enum-type>
+
+    <enum-type name="MaritalStatusEnum@eg.maximal.co" label="Marital Status type">
+        <enum-option name="MARRIED" label="Married"/>
+        <enum-option name="SINGLE" label="Single"/>
+        <enum-option name="DIVORCED" label="Divorced"/>
+        <enum-option name="WIDOWED" label="Widowed"/>
+    </enum-type>
+
+    <enum-type name="CovIndicatorEnum@eg.maximal.co" label="Coverage Code Indicator.">
+        <enum-option name="BASE" label="Base coverage"/>
+        <enum-option name="RIDER" label="Rider coverage"/>
+    </enum-type>
+
+    <enum-type name="TobaccoUseStatusEnum@eg.maximal.co" label="Tobacco Use Status">
+        <enum-option name="NEVER_USED" label="Never Used"/>
+        <enum-option name="CURRENT_USE" label="Currently Used"/>
+        <enum-option name="FULLY_STOPPED" label="Fully Stopped"/>
+    </enum-type>
+
+    <enum-type name="TobaccoLastUsedEnum@eg.maximal.co" label="Tobacco last used">
+        <enum-option name="LESS_THAN_1YR" label="Less than a year ago"/>
+        <enum-option name="YRS_1_TO_3" label="1-3 years ago"/>
+        <enum-option name="YRS_3_TO_5" label="3-5 years ago"/>
+        <enum-option name="MORE_THAN_5YR" label="More than 5 years ago"/>
+    </enum-type>
+
+    <enum-type name="USStatesEnum@eg.maximal.co" label="US States">
+        <enum-option name="AL" label="Alabama"/>
+        <enum-option name="AK" label="Alaska"/>
+        <enum-option name="AZ" label="Arizona"/>
+        <enum-option name="AR" label="Arkansas"/>
+        <enum-option name="CA" label="California"/>
+        <enum-option name="CO" label="Colarado"/>
+        <enum-option name="CT" label="Connecticut"/>
+        <enum-option name="DE" label="Delaware"/>
+        <enum-option name="DC" label="District of Columbia"/>
+        <enum-option name="FL" label="Florida"/>
+        <enum-option name="GA" label="Georgia"/>
+        <enum-option name="HI" label="Hawaii"/>
+        <enum-option name="ID" label="Idaho"/>
+        <enum-option name="IL" label="Illinois"/>
+        <enum-option name="IN" label="Indiana"/>
+        <enum-option name="IA" label="Iowa"/>
+        <enum-option name="KS" label="Kansas"/>
+        <enum-option name="KY" label="Kentucky"/>
+        <enum-option name="LA" label="Louisina"/>
+        <enum-option name="ME" label="Maine"/>
+        <enum-option name="MI" label="Michigan"/>
+        <enum-option name="MN" label="Minnesota"/>
+        <enum-option name="MS" label="Mississipi"/>
+        <enum-option name="MO" label="Missouri"/>
+        <enum-option name="MT" label="Montana"/>
+        <enum-option name="NE" label="Nebraska"/>
+        <enum-option name="NV" label="Nevada"/>
+        <enum-option name="NH" label="New Hampshire"/>
+        <enum-option name="NJ" label="New Jersey"/>
+        <enum-option name="NM" label="New Mexico"/>
+        <enum-option name="NY" label="New York"/>
+        <enum-option name="NC" label="North Carolina"/>
+        <enum-option name="ND" label="North Dakota"/>
+        <enum-option name="OH" label="Ohio"/>
+        <enum-option name="OK" label="Oklahoma"/>
+        <enum-option name="OR" label="Oregon"/>
+        <enum-option name="PA" label="Pennsylvania"/>
+        <enum-option name="RI" label="Rhode Island"/>
+        <enum-option name="SC" label="South Carolina"/>
+        <enum-option name="SD" label="South Dakota"/>
+        <enum-option name="TN" label="Tennessee"/>
+        <enum-option name="TX" label="Texas"/>
+        <enum-option name="UT" label="Utah"/>
+        <enum-option name="VT" label="Vermont"/>
+        <enum-option name="VA" label="Virgina"/>
+        <enum-option name="WA" label="Washington"/>
+    </enum-type>
+
+    <enum-type name="USResidencyStatusEnum@eg.maximal.co" label="US Residency Status">
+        <enum-option name="CITIZEN" label="US Citizen"/>
+        <enum-option name="GREENCARD" label="US Permanent Resident"/>
+        <enum-option name="VISA" label="US Non-Permanent Resident on a valid visa"/>
+    </enum-type>
+
+    <enum-type name="RiskClassEnum@eg.maximal.co" label="Available risk classes.">
+        <enum-option name="PREFERRED" label="Preferred" ordinal="1"/>
+        <enum-option name="STANDARD" label="Standard" ordinal="2"/>
+        <enum-option name="SMOKER_PREFERRED" label="Preferred Smoker" ordinal="3"/>
+        <enum-option name="SMOKER_STANDARD" label="Standard Smoker" ordinal="4"/>
+        <enum-option name="NONE" label="None" ordinal="5"/>
+    </enum-type>
+
+    <enum-type name="ReqStatusEnum@eg.maximal.co" label="Requirement status.">
+        <enum-option name="NEW" label="New"/>
+        <enum-option name="ORDERED" label="Ordered"/>
+        <enum-option name="INPROGRESS" label="In progress"/>
+        <enum-option name="RECEIVED" label="Received"/>
+        <enum-option name="REVIEWED" label="Reviewed"/>
+        <enum-option name="CANCELED" label="Canceled"/>
+    </enum-type>
+
+    <enum-type name="RoleCodeEnum@eg.maximal.co" label="Role code enumeration.">
+        <enum-option name="INSURED" label="Primary Insured"/>
+        <enum-option name="JOINTINSURED" label="Joint Insured"/>
+        <enum-option name="OWNER" label="Owner"/>
+        <enum-option name="BENEFICIARY" label="Beneficiary"/>
+        <enum-option name="CONTINGENT_BENE" label="Contigent Beneficiary"/>
+    </enum-type>
+
+    <enum-type name="AddressTypeEnum@eg.maximal.co" label="Address type enumeration">
+        <enum-option name="HOME" label="Home address"/>
+        <enum-option name="MAILINGE" label="Mailing address"/>
+    </enum-type>
+
+    <enum-type name="RelationTypeEnum@eg.maximal.co" label="Relationship type enumeration.">
+        <enum-option name="CHILD" label="Child"/>
+        <enum-option name="SIBLING" label="Sibling"/>
+        <enum-option name="SPOUSE" label="Spouse"/>
+        <enum-option name="PARENT" label="Parent"/>
+        <enum-option name="GRANDPARENT" label="Grand Parent"/>
+        <enum-option name="EMPLOYER" label="Employer"/>
+    </enum-type>
+
+    <enum-type name="PolicyPurposeEnum@eg.maximal.co" label="Policy purpose enumeration.">
+        <enum-option name="INCOME_REPL" label="Income Replacement"/>
+        <enum-option name="DEBT_REPAYMENT" label="Debt Repayment"/>
+        <enum-option name="ESTATE_PRESERVATION" label="Estate Preservation"/>
+    </enum-type>
+
+    <enum-type name="OwnershipTypeEnum@eg.maximal.co" label="Ownership type enumeration.">
+        <enum-option name="PROPOSED_INSURED" label="Same as Insured"/>
+        <enum-option name="OTHER_PERSON" label="Other Individual"/>
+        <enum-option name="TRUST" label="Trust"/>
+        <enum-option name="BUSINESS" label="Business"/>
+    </enum-type>
+
+</model>

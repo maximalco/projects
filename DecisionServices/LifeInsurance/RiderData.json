@@ -1,0 +1,17 @@
+[
+  {
+    "RiderCode": "ACDB",
+    "IsActive": true,
+    "RiderName": "Accelrated Death Benefit"
+  },
+  {
+    "RiderCode": "ADB",
+    "IsActive": true,
+    "RiderName": "Accidental Death Benefit"
+  },
+  {
+    "RiderCode": "PWAIVER",
+    "IsActive": true,
+    "RiderName": "Waiver of Premium due to Disability"
+  }
+]

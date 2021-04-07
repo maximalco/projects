@@ -1,0 +1,168 @@
+REFERENCE_TABLE ProductData = ProductData@eg.maximal.co ON KEYS ProductCode;
+
+SET case = LifeCase@eg.maximal.co;
+SET policy = case.Policies;
+SET party = case.Parties;
+SET basecov = policy.Coverages WHERE basecov.Indicator=BASE;
+SET insured = policy.Participants WHERE insured.RoleCode=INSURED;
+SET insuredParty = insured.Party;
+
+SET partA = insuredParty.PartA;
+SET rhq = partA.RiskHistoryQuestions;
+SET rhqTrue = partA.RiskHistoryQuestions WHERE rhqTrue.Response; // Where answer is yes.
+
+SET partB = insuredParty.PartB;
+SET hhq = partB.HealthHistoryQuestions;
+SET hhqTrue = partB.HealthHistoryQuestions WHERE hhqTrue.Response; // Where answer is yes.
+
+SET bene = policy.Participants WHERE bene.RoleCode=BENEFICIARY;
+SET contbene = policy.Participants WHERE contbene.RoleCode = CONTINGENT_BENE;
+
+SET existingContract = insuredParty.ExistingContracts;
+SET replacedContract = insuredParty.ExistingContracts WHERE replacedContract.ToBeReplaced;
+SET unreplacedContract = insuredParty.ExistingContracts WHERE NOT unreplacedContract.ToBeReplaced;
+
+// Product restrictions.
+CONSTRAINT Product C1 "Face amount cannot exceed product-specific limits."
+    policy.IssuableInd =>
+    (basecov.CoverageAmt >= ProductData[basecov.ProductCode].MinCovAmt AND
+    basecov.CoverageAmt <= ProductData[basecov.ProductCode].MaxCovAmt);
+
+CONSTRAINT Product C2 "Issue age cannot exceed product-specific limits."
+    policy.IssuableInd =>
+    (insured.IssueAge >= ProductData[basecov.ProductCode].MinIssueAge AND
+     insured.IssueAge <= ProductData[basecov.ProductCode].MaxIssueAge);
+
+/*
+The group below specifies all conditions for data validity. If any of these conditions
+*/
+GROUP case.DataValidInd
+  CONSTRAINT DataValidity C1 "No beneficiaries specified."
+    SSIZE(bene)>0;
+
+  CONSTRAINT DataValidity C2 "Beneficiary percentages should add up to 100."
+    SSIZE(bene)>0 => SSUM(bene, bene.ParticipationPct) = 100;
+
+  CONSTRAINT DataValidity C3 "Contingent Bene percentages should add up to 100."
+    SSIZE(contbene)>0 => SSUM(contbene, contbene.ParticipationPct) = 100;
+
+  CONSTRAINT DataValidity C4 "Existing insurance indicated, but no existing contracts specified."
+    partA.ExistingInsuranceInd => SSIZE(existingContract)>0;
+/GROUP
+
+// Simplified Issue Eligibility
+
+CONSTRAINT SIEligibility C0 DEFAULT "The case is simplified issue eligible by default."
+    case.SIIssuableInd;
+
+GROUP case.SIIssuableInd
+    CONSTRAINT SIEligibility C1 "Policy must meet all requirements for Simplified Issue."
+        policy.IssuableInd;
+
+    CONSTRAINT SIEligibility C2 "All risk history questions must be answered false for Simplified Issue."
+        SSIZE(rhqTrue) = 0;
+
+    CONSTRAINT SIEligibility C3 "All health history questions must be answered false for Simplified Issue."
+        SSIZE(hhqTrue) = 0;
+
+    CONSTRAINT SIEligibility C4 "For Simplified Issue, coverage amount must be below $500,000."
+        basecov.CoverageAmt < 500000;
+
+    CONSTRAINT SIEligibility C5 "Replaement policies cannot be Simplified Issue."
+        SSIZE(replacedContract)=0;
+
+    CONSTRAINT SIEligibility C6 "Only term products are eligible for Simplified Issue.."
+        ProductData[basecov.ProductCode].FamilyCode = "TERM";
+
+    CONSTRAINT SIEligibility C7 "Data submitted must be valid for Simplified Issue."
+        case.DataValidInd;
+
+    CONSTRAINT SIEligibility C8 "Insured must be eligible for at least one risk class for Simplified Issue."
+        policy.BestRiskClass != NONE;
+/GROUP
+
+// Financial Underwriting rules
+
+LOOKUP_TABLE IncomeFactorTable "Income factor limits based on age."
+    INPUT NUMBER IssueAge,
+    OUTPUT NUMBER IncomeFactor,
+/* IssueAge       IncomeFactor
+---------------------------------*/
+    [<=35]           30,
+    [36..45]         25,
+    [46..50]         20,
+    [51..55]         15,
+    [56..65]         10,
+    [66..70]          5,
+    [>=71]            2;
+
+CONSTRAINT Financial C1 "Coverage Amount cannot exceed the income factor for underwriting."
+    policy.IssuableInd =>
+    (partA.Purpose = INCOME_REPL =>
+     policy.TotalRiskAmt <= IncomeFactorTable[insured.IssueAge].IncomeFactor * partA.AnnualIncome);
+
+// Calculations
+CONSTRAINT Calc C1 STRICT "Issue Age is EffectiveDate - BirthDate"
+    insured.IssueAge = DATEDIFF(policy.EffectiveDate, insuredParty.BirthDate, YEARS);
+
+CONSTRAINT Calc C2 STRICT "Total Risk Amt = Base Cov amt + other policies."
+    policy.TotalRiskAmt = basecov.CoverageAmt + SSUM(unreplacedContract, unreplacedContract.CoverageAmt);
+
+// Weight and Height restrictions based on risk classes.
+LOOKUP_TABLE MaxWeightChart "Max Weight chart based on height"
+    INPUT NUMBER Height,
+    OUTPUT NUMBER Preferred,
+    OUTPUT NUMBER Standard,
+/* Height     Preferred   Standard
+--------------------------------------*/
+    54          155         169,
+    55          160         176,
+    56          166         182,
+    57          172         189,
+    58          178         196,
+    59          184         203,
+    60          190         210,
+    61          196         217,
+    62          202         224,
+    63          208         231,
+    64          214         239,
+    65          220         246,
+    66          227         254,
+    67          233         261,
+    68          239         270,
+    69          244         278,
+    70          250         286,
+    71          256         294,
+    72          263         302,
+    73          269         310,
+    74          276         319,
+    75          283         327,
+    76          289         336,
+    77          296         345,
+    78          303         354,
+    79          310         363,
+    80          317         372,
+    81          324         381,
+    82          331         390,
+    83          338         399,
+    84          346         409;
+
+// Risk class restrictions based on weight chart.
+CONSTRAINT Build C1 "preferred/smoker preferred weight restriction."
+    policy.EligibleRiskClasses IN [PREFERRED, SMOKER_PREFERRED] => partB.Weight <= MaxWeightChart[partB.HeightInInches].Preferred;
+
+CONSTRAINT Build C3 "Super standard/smoker preferred weight restriction."
+    policy.EligibleRiskClasses IN [STANDARD, SMOKER_STANDARD] => partB.Weight <= MaxWeightChart[partB.HeightInInches].Standard;
+
+// For preferred and stadard classes, the insured must have not smoked for at least 5 years.
+CONSTRAINT RiskClass C2 "preferred and standard classes are not offered for smokers."
+    policy.EligibleRiskClasses IN [PREFERRED, STANDARD] =>
+    (partA.TobaccoUseStatus=NEVER_USED OR
+     (partA.TobaccoUseStatus=FULLY_STOPPED AND partA.TobaccoLastUsed=MORE_THAN_5YR));
+
+// Pick the best risk class from all eligible risk classes.
+CONSTRAINT RiskClass C1 STRICT "Best risk class from all the eligible risk classes."
+    policy.BestRiskClass = MINOPTION(policy.EligibleRiskClasses);
+
+
+
