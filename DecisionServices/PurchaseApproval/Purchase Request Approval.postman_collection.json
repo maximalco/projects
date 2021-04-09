@@ -92,6 +92,51 @@
 			"response": []
 		},
 		{
+			"name": "Change Purchase Amount",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "[\n    {\n        \"ObjectType\": \"PRApproval@eg.maximal.co\",\n        \"ObjectID\": 10000001,\n        \"Status\": \"APPROVED\"\n    }\n]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{endpoint}}/scope/updateObjects?proj=PurchaseApproval&scope=10000001",
+					"host": [
+						"{{endpoint}}"
+					],
+					"path": [
+						"scope",
+						"updateObjects"
+					],
+					"query": [
+						{
+							"key": "proj",
+							"value": "PurchaseApproval"
+						},
+						{
+							"key": "scope",
+							"value": "10000001"
+						}
+					]
+				},
+				"description": "Update weight in PartB to 300. Check the best risk class and ask for reasons.\n"
+			},
+			"response": []
+		},
+		{
 			"name": "Show All Objects ",
 			"request": {
 				"method": "GET",
