@@ -1,0 +1,162 @@
+{
+	"info": {
+		"_postman_id": "8a1984e3-c2fa-4c7b-aeda-3f617573ca69",
+		"name": "Purchase Request Approval",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Submit New Purchase Request",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "[\n  {\n    \"ObjectType\" : \"PurchaseRequest@eg.maximal.co\",\n    \"PRNumber\": \"PR00001\",\n    \"SubmissionDate\": \"2021-04-06\",\n    \"PurchaseAmt\": 20000\n  }\n]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{endpoint}}/scope/new?proj=PurchaseApproval",
+					"host": [
+						"{{endpoint}}"
+					],
+					"path": [
+						"scope",
+						"new"
+					],
+					"query": [
+						{
+							"key": "proj",
+							"value": "PurchaseApproval"
+						}
+					]
+				},
+				"description": "Submit a new life insurance application. Give insured's birthday such that it makes the issue age to be over the limit. Now SIIssuable is false.\n\n"
+			},
+			"response": []
+		},
+		{
+			"name": "Approve or Reject Request",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "[\n    {\n        \"ObjectType\": \"PRApproval@eg.maximal.co\",\n        \"ObjectID\": 10000001,\n        \"Status\": \"APPROVED\"\n    }\n]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{endpoint}}/scope/updateObjects?proj=PurchaseApproval&scope=10000001",
+					"host": [
+						"{{endpoint}}"
+					],
+					"path": [
+						"scope",
+						"updateObjects"
+					],
+					"query": [
+						{
+							"key": "proj",
+							"value": "PurchaseApproval"
+						},
+						{
+							"key": "scope",
+							"value": "10000001"
+						}
+					]
+				},
+				"description": "Update weight in PartB to 300. Check the best risk class and ask for reasons.\n"
+			},
+			"response": []
+		},
+		{
+			"name": "Show All Objects ",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{endpoint}}/scope/objects?proj=PurchaseApproval&scope=10000001&includeRels=true",
+					"host": [
+						"{{endpoint}}"
+					],
+					"path": [
+						"scope",
+						"objects"
+					],
+					"query": [
+						{
+							"key": "proj",
+							"value": "PurchaseApproval"
+						},
+						{
+							"key": "scope",
+							"value": "10000001"
+						},
+						{
+							"key": "includeRels",
+							"value": "true"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "basic",
+		"basic": [
+			{
+				"key": "username",
+				"value": "sample_key2",
+				"type": "string"
+			},
+			{
+				"key": "password",
+				"value": "4aQO1CTtcEXl1P4k4bemQ4eNBP6bd1rFcNNm",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
