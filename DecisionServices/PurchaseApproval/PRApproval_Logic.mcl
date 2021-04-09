@@ -1,15 +1,24 @@
+/*
+This model illustrates a simple purchase request approval.
+- If a purchase request is under $500, approve it automatically.
+- If over $500, send it to Project Manager for an approval.
+- If Project Manager rejects it, the request is rejected.
+  Otherwise, it is sent to Finance Manager for approval.
+- If Finance Manager rejects it, the request is rejected.
+  Otherwise, if the amount is over $10,000, send it to CFO for approval,
+             else mark the request as approved.
+- If CFO approves it, the request is approved, else it is rejected.
+*/
+
 SET pr = PurchaseRequest@eg.maximal.co;
 SET approval = pr.Approvals;
-/*
-    The following sets filter the approvals by their existential indicator.
-    If any approvals are withdrawn because they are not needed, the existential indicator becomes not-true.
-*/
 SET apr = pr.Approvals WHERE apr.ExistentialInd;
 SET pmapr = pr.Approvals WHERE pmapr.Type=PM AND pmapr.ExistentialInd;
 SET fmapr = pr.Approvals WHERE fmapr.Type=FM AND fmapr.ExistentialInd;
 SET noapr = pr.Approvals WHERE noapr.Status IN [PENDING, REJECTED] AND noapr.ExistentialInd;
 
-CONSTRAINT PR C1 "PM Approval is needed for every request"
+CONSTRAINT PR C1 "PM Approval is needed for every request with amount over $500."
+   pr.PurchaseAmt>500 =>
    ENSURE approval WITH approval.Type=PM, approval.Request = pr;
 
 CONSTRAINT PR C2 "If PM approves the request, create an approval for FM"

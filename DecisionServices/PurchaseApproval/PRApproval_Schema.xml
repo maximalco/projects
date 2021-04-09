@@ -1,5 +1,4 @@
 
-
 <model xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maximal.co">
 
     <object-type name="PurchaseRequest@eg.maximal.co" label="Purchase request">
@@ -36,6 +35,5 @@
         <enum-option name="APPROVED" label="Approved"/>
         <enum-option name="REJECTED" label="Rejected"/>
     </enum-type>
-
-
 </model>
+x
