@@ -1,0 +1,41 @@
+
+
+<model xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maximal.co">
+
+    <object-type name="PurchaseRequest@eg.maximal.co" label="Purchase request">
+        <attribute name="PRNumber" label="Purchase request Number" datatype="text" optional="false"/>
+        <attribute name="SubmissionDate" label="Submission Date" datatype="date"/>
+        <attribute name="RequestedBy" label="Requested by user" datatype="text"/>
+
+        <attribute name="PurchaseAmt" label="Purchase amount" datatype="float"/>
+        <attribute name="IsApproved" label="Approved or not." datatype="boolean"/>
+
+        <relation name="Approvals" label="Approvals" inverse-object="PRApproval@eg.maximal.co" inverse-attribute="Request"/>
+
+        <persistence-params table-name="pr_purchasereq"/>
+    </object-type>
+
+    <object-type name="PRApproval@eg.maximal.co" label="Purchase request approval." is-existential="true">
+        <attribute name="Request" label="Purchase request" datatype="reference" ref-type="PurchaseRequest@eg.maximal.co"/>
+        <attribute name="Type" label="Approval type" datatype="enumerated" enumtype="ApprovalTypeEnum@eg.maximal.co"/>
+        <attribute name="Status" label="Approval status" datatype="enumerated"
+                   enumtype="ApprovalStatusEnum@eg.maximal.co" initial-value="PENDING"/>
+        <attribute name="StatusDate" label="Status date" datatype="date"/>
+        <persistence-params table-name="pr_approval"/>
+    </object-type>
+
+    <!-- Enumerations -->
+    <enum-type name="ApprovalTypeEnum@eg.maximal.co" label="Approval type enumeration">
+        <enum-option name="PM" label="Project manager approval"/>
+        <enum-option name="FM" label="Finance manager approval"/>
+        <enum-option name="CFO" label="CFO approval"/>
+    </enum-type>
+
+    <enum-type name="ApprovalStatusEnum@eg.maximal.co" label="Approval status enumeration">
+        <enum-option name="PENDING" label="Pending"/>
+        <enum-option name="APPROVED" label="Approved"/>
+        <enum-option name="REJECTED" label="Rejected"/>
+    </enum-type>
+
+
+</model>

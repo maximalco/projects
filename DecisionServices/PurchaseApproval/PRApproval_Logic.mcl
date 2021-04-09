@@ -1,0 +1,28 @@
+SET pr = PurchaseRequest@eg.maximal.co;
+SET approval = pr.Approvals;
+/*
+    The following sets filter the approvals by their existential indicator.
+    If any approvals are withdrawn because they are not needed, the existential indicator becomes not-true.
+*/
+SET apr = pr.Approvals WHERE apr.ExistentialInd;
+SET pmapr = pr.Approvals WHERE pmapr.Type=PM AND pmapr.ExistentialInd;
+SET fmapr = pr.Approvals WHERE fmapr.Type=FM AND fmapr.ExistentialInd;
+SET noapr = pr.Approvals WHERE noapr.Status IN [PENDING, REJECTED] AND noapr.ExistentialInd;
+
+CONSTRAINT PR C1 "PM Approval is needed for every request"
+   ENSURE approval WITH approval.Type=PM, approval.Request = pr;
+
+CONSTRAINT PR C2 "If PM approves the request, create an approval for FM"
+   pmapr.Status = APPROVED =>
+   ENSURE approval WITH approval.Type=FM, approval.Request = pr;
+
+CONSTRAINT PR C3 "If FM approves the request and the amount is over 10,000, then create an approval for CFO"
+   (fmapr.Status=APPROVED AND pr.PurchaseAmt >10000) =>
+   ENSURE approval WITH approval.Type=CFO, approval.Request = pr;
+
+CONSTRAINT PR C4 "Request is approved if there are no pending or rejected approvals."
+   SSIZE(noapr)=0 => pr.IsApproved;
+
+CONSTRAINT PR C5 "Request is rejected if there are any rejected approvals."
+   apr.Status=REJECTED => NOT pr.IsApproved;
+
