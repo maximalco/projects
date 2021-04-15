@@ -1,0 +1,13 @@
+
+<model xmlns="http://maximal.co">
+    <named-query name="getAllEvents" label="Get All Events" description="Get All Events">
+        <query>
+            SELECT
+            event.EventType EventType,
+            event.EventTarget EventTarget,
+            event.TxTimeStamp EventTimeStamp
+            FROM
+            max_event event
+        </query>
+    </named-query>
+</model>

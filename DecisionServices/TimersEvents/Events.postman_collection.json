@@ -1,0 +1,240 @@
+{
+	"info": {
+		"_postman_id": "aea74d4e-2bb5-4a78-ab48-b5be026ad929",
+		"name": "TimersEvents",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Submit New Purchase Request",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "[\n  {\n    \"ObjectType\" : \"PurchaseRequest@eg.maximal.co\",\n    \"PRNumber\": \"PR00001\",\n    \"SubmissionDate\": \"2021-04-06\",\n    \"PurchaseAmt\": 20000\n  }\n]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{endpoint}}/scope/new?proj=TimersEvents",
+					"host": [
+						"{{endpoint}}"
+					],
+					"path": [
+						"scope",
+						"new"
+					],
+					"query": [
+						{
+							"key": "proj",
+							"value": "TimersEvents"
+						}
+					]
+				},
+				"description": "Submit a new life insurance application. Give insured's birthday such that it makes the issue age to be over the limit. Now SIIssuable is false.\n\n"
+			},
+			"response": []
+		},
+		{
+			"name": "Change Create Date for Approval",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "[\n    {\n        \"ObjectType\": \"PRApproval@eg.maximal.co\",\n        \"ObjectID\": 10000001,\n        \"createdDate\": \"2001-03-2021\"\n    }\n]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{endpoint}}/scope/updateObjects?proj=TimersEvents&scope=10000001",
+					"host": [
+						"{{endpoint}}"
+					],
+					"path": [
+						"scope",
+						"updateObjects"
+					],
+					"query": [
+						{
+							"key": "proj",
+							"value": "TimersEvents"
+						},
+						{
+							"key": "scope",
+							"value": "10000001"
+						}
+					]
+				},
+				"description": "Update weight in PartB to 300. Check the best risk class and ask for reasons.\n"
+			},
+			"response": []
+		},
+		{
+			"name": "Approve or Reject Request",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "[\n    {\n        \"ObjectType\": \"PRApproval@eg.maximal.co\",\n        \"ObjectID\": 10000001,\n        \"Status\": \"APPROVED\"\n    }\n]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{endpoint}}/scope/updateObjects?proj=TimersEvents&scope=10000001",
+					"host": [
+						"{{endpoint}}"
+					],
+					"path": [
+						"scope",
+						"updateObjects"
+					],
+					"query": [
+						{
+							"key": "proj",
+							"value": "TimersEvents"
+						},
+						{
+							"key": "scope",
+							"value": "10000001"
+						}
+					]
+				},
+				"description": "Update weight in PartB to 300. Check the best risk class and ask for reasons.\n"
+			},
+			"response": []
+		},
+		{
+			"name": "Query for Events",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"query-name\": \"getAllEvents\",\n    \"query-params\": {}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{endpoint}}/db/query?proj=TimersEvents",
+					"host": [
+						"{{endpoint}}"
+					],
+					"path": [
+						"db",
+						"query"
+					],
+					"query": [
+						{
+							"key": "proj",
+							"value": "TimersEvents"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Show All Objects ",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{endpoint}}/scope/objects?proj=PurchaseApproval&scope=10000001&includeRels=true",
+					"host": [
+						"{{endpoint}}"
+					],
+					"path": [
+						"scope",
+						"objects"
+					],
+					"query": [
+						{
+							"key": "proj",
+							"value": "PurchaseApproval"
+						},
+						{
+							"key": "scope",
+							"value": "10000001"
+						},
+						{
+							"key": "includeRels",
+							"value": "true"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "basic",
+		"basic": [
+			{
+				"key": "username",
+				"value": "michelle.martin@max-mutual.com",
+				"type": "string"
+			},
+			{
+				"key": "password",
+				"value": "First1###",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
