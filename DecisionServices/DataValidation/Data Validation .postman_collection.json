@@ -1,0 +1,202 @@
+{
+	"info": {
+		"_postman_id": "e8652b4a-31b6-40ea-84e6-d3d240480325",
+		"name": "Data Validation ",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Subimit new application",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "[\n  {\n    \"ObjectType\" : \"LifeCase@eg.maximal.co\",\n    \"CaseNumber\": \"C0000003\",\n    \"SubmissionDate\": \"2021-04-06\",\n    \n    \"Parties\": [\n        {\n            \"_ref_by_\": \"InsuredParty\",\n            \"Type\": \"PERSON\",\n            \"FirstName\": \"John\",\n            \"LastName\": \"Lincoln\",\n            \"Sex\": \"MALE\",\n            \"MaritalStatus\": \"MARRIED\",\n            \"BirthDate\": \"1930-03-05\",\n            \"HasValidDL\": true,\n            \"DLNumber\": \"B1345523\",\n            \"DLState\": \"CA\",\n\n            \"PartA\": {\n                \"ExistingInsuranceInd\": false,\n                \"TobaccoUseStatus\": \"FULLY_STOPPED\",\n                \"AnnualIncome\": 50000,\n                \"Purpose\": \"INCOME_REPL\",\n                \"RiskHistoryQuestions\": [\n                    {\n                        \"QuestionID\": \"OtherPendingApplicationInd\",\n                        \"Response\": false\n                    },\n                    {\n                        \"QuestionID\": \"DUIInd\",\n                        \"Response\": true\n                    },\n                    {\n                        \"QuestionID\": \"AviationInd\",\n                        \"Response\": false\n                    },\n                    {\n                        \"QuestionID\": \"RiskyAvocationInd\",\n                        \"Response\": false\n                    }\n                ]\n            }\n        },\n        {\n            \"_ref_by_\": \"beneficiary_1\",\n            \"Type\": \"PERSON\",\n            \"FirstName\": \"Michelle\",\n            \"LastName\": \"Lincoln\",\n            \"Sex\": \"FEMALE\"\n        }\n    ],\n\n    \"Policies\": [ \n        {\n            \"Jurisdiction\": \"CA\",\n            \"EffectiveDate\": \"2025-04-25\",\n\n            \"Coverages\": [\n                {\n                    \"ProductCode\": \"T20\",\n                    \"Indicator\": \"BASE\",\n                    \"CoverageAmt\": 350000\n                }\n            ],\n            \n            \"Participants\": [\n                {\n                    \"Party\": \"InsuredParty\",\n                    \"RoleCode\": \"INSURED\"\n                },\n\n                {\n                    \"Party\": \"beneficiary_1\",\n                    \"RoleCode\": \"BENEFICIARY\",\n                    \"RelationCode\": \"SPOUSE\",\n                    \"ParticipationPct\": 100\n                }\n            ]\n        }\n    ]\n  }\n]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{endpoint}}/scope/new?proj=DataValidation",
+					"host": [
+						"{{endpoint}}"
+					],
+					"path": [
+						"scope",
+						"new"
+					],
+					"query": [
+						{
+							"key": "proj",
+							"value": "DataValidation"
+						}
+					]
+				},
+				"description": "Submit a new life insurance application. Give insured's birthday such that it makes the issue age to be over the limit. Now SIIssuable is false.\n\n"
+			},
+			"response": []
+		},
+		{
+			"name": "Explain why data is Invalid",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{endpoint}}/scope/explainVariable?proj=DataValidation&scope=10000001&variable=LifeCase@eg.maximal.co:10000001:DataValidInd",
+					"host": [
+						"{{endpoint}}"
+					],
+					"path": [
+						"scope",
+						"explainVariable"
+					],
+					"query": [
+						{
+							"key": "proj",
+							"value": "DataValidation"
+						},
+						{
+							"key": "scope",
+							"value": "10000001"
+						},
+						{
+							"key": "variable",
+							"value": "LifeCase@eg.maximal.co:10000001:DataValidInd"
+						}
+					]
+				},
+				"description": "Explain reasons behind why data is invalid."
+			},
+			"response": []
+		},
+		{
+			"name": "Fetch Required Fields",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{endpoint}}/scope/getRequiredFields?proj=DataValidation&scope=10000001&onlyUknowns=true",
+					"host": [
+						"{{endpoint}}"
+					],
+					"path": [
+						"scope",
+						"getRequiredFields"
+					],
+					"query": [
+						{
+							"key": "proj",
+							"value": "DataValidation"
+						},
+						{
+							"key": "scope",
+							"value": "10000001"
+						},
+						{
+							"key": "onlyUknowns",
+							"value": "true"
+						}
+					]
+				},
+				"description": "Fetch all required fields"
+			},
+			"response": []
+		},
+		{
+			"name": "Show All Objects ",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{endpoint}}/scope/objects?proj=DataValidation&scope=10000001&includeRels=true",
+					"host": [
+						"{{endpoint}}"
+					],
+					"path": [
+						"scope",
+						"objects"
+					],
+					"query": [
+						{
+							"key": "proj",
+							"value": "DataValidation"
+						},
+						{
+							"key": "scope",
+							"value": "10000001"
+						},
+						{
+							"key": "includeRels",
+							"value": "true"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "basic",
+		"basic": [
+			{
+				"key": "username",
+				"value": "michelle.martin@max-mutual.com",
+				"type": "string"
+			},
+			{
+				"key": "password",
+				"value": "First1###",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}

@@ -1,0 +1,52 @@
+[
+	{
+		"ProductName": "10 Year Term",
+		"ProductCode": "T10",
+		"IsActive": true,
+		"FamilyCode": "TERM",
+		"MinCovAmt": 100000,
+		"MaxCovAmt": 2000000,
+		"MinIssueAge": 18,
+		"MaxIssueAge": 60
+	},
+	{
+		"ProductName": "20 Year Term",
+		"ProductCode": "T20",
+		"IsActive": true,
+		"FamilyCode": "TERM",
+		"MinCovAmt": 200000,
+		"MaxCovAmt": 2000000,
+		"MinIssueAge": 18,
+		"MaxIssueAge": 60
+	},
+	{
+		"ProductName": "30 Year Term",
+		"ProductCode": "T30",
+		"IsActive": true,
+		"FamilyCode": "TERM",
+		"MinCovAmt": 200000,
+		"MaxCovAmt": 2000000,
+		"MinIssueAge": 18,
+		"MaxIssueAge": 60
+	},
+	{
+		"ProductName": "Whole Life for 20 years",
+		"ProductCode": "WL20",
+		"IsActive": true,
+		"FamilyCode": "WL",
+		"MinCovAmt": 250000,
+		"MaxCovAmt": 5000000,
+		"MinIssueAge": 18,
+		"MaxIssueAge": 60
+	},
+	{
+		"ProductName": "Whole Life to age 100",
+		"ProductCode": "WL100",
+		"IsActive": true,
+		"FamilyCode": "WL",
+		"MinCovAmt": 250000,
+		"MaxCovAmt": 5000000,
+		"MinIssueAge": 18,
+		"MaxIssueAge": 60
+	}
+]
